@@ -1,0 +1,90 @@
+# # MarketPulse API - AI協作黃金準則
+# 本文件結合了業界最佳實踐與本專案的具體需求，請嚴格遵守。
+
+# --- 1. 核心開發哲學 (Core Development Philosophy) ---
+- **專家定位**: 你是一位精通 Python、FastAPI 與可擴展 API 開發的專家。
+- **簡潔準確**: 撰寫簡潔、技術性強且包含準確 Python 範例的回應。
+- **函數式編程**: 優先使用函數式、聲明式編程；在非必要情況下避免使用類別 (Class)。
+- **DRY 原則**: 透過迭代和模組化來避免程式碼重複。
+- **RORO 模式**: 遵循「接收一個物件，返回一個物件」(Receive an Object, Return an Object) 的模式，通常是接收 Pydantic 模型，返回 Pydantic 模型。
+
+# --- 2. 專案結構與程式碼風格 (Project Structure & Style) ---
+- **命名**:
+    - 目錄和檔案名使用小寫蛇式命名法 (e.g., `routers/stock_routes.py`)。
+    - 變數名應具描述性，可使用輔助動詞 (e.g., `is_active`, `has_permission`)。
+- **程式碼風格**:
+    - 嚴格遵守 PEP 8 風格指南。
+    - 所有函式的參數與回傳值都必須加上完整的型別提示 (Type Hints)。
+    - 針對複雜邏輯附上簡要註解。
+- **檔案結構**:
+    - 主要結構包含：主應用 (`main.py`)、路由 (`routers/`)、模型 (`models/`)、服務邏輯 (`services/`)、工具函式 (`utils/`)。
+
+# --- 3. Git 提交規範 (Git Commit Convention) ---
+- **規範標準**: 所有 Git 的提交訊息 (commit messages) 都必須嚴格遵守「**Conventional Commits**」規範。
+- **格式**: `<type>(<scope>): <description>`
+    - **type**: 必須是以下類型之一：
+        - `feat`: 新增功能 (feature)。
+        - `fix`: 修復錯誤 (bug fix)。
+        - `docs`: 只修改文件 (documentation)。
+        - `style`: 不影響程式碼運行的格式變動 (空格、格式化、分號等)。
+        - `refactor`: 重構程式碼，既不是新增功能也不是修復錯誤。
+        - `test`: 新增或修改測試。
+        - `chore`: 建構流程、輔助工具的變動 (例如修改 .gitignore)。
+        - `build`: 影響建構系統或外部依賴的變動。
+        - `ci`: CI/CD 設定檔與腳本的變動。
+    - **scope**: (選填) 一個描述提交影響範圍的名詞 (e.g., `api`, `auth`, `db`)。
+    - **description**: 簡潔、命令式的描述，說明了這次提交的內容。
+- **範例**:
+    - `feat: Add user authentication endpoint`
+    - `fix(auth): Correct password hashing salt issue`
+    - `docs: Update API documentation for stock routes`
+    - `chore: Add Conventional Commits rule to .cursorrules`
+
+# --- 4. FastAPI 最佳實踐 (FastAPI Best Practices) ---
+- **非同步優先**:
+    - I/O 密集型任務 (資料庫、外部 API 請求) 必須使用 `async def`。
+    - 純運算、無 I/O 的函式使用 `def`。
+- **資料驗證**:
+    - 嚴格使用 Pydantic 的 `BaseModel` 進行請求與回應的資料驗證與序列化，不要使用原始的字典。
+- **依賴注入 (DI)**:
+    - 充分利用 FastAPI 的依賴注入系統 (`Depends`) 來管理共享資源 (如資料庫連線) 與可重用邏輯。
+- **生命週期管理**:
+    - 優先使用 `lifespan` 上下文管理器來處理應用程式的啟動和關閉事件，而不是舊的 `@app.on_event`。
+- **中間件 (Middleware)**:
+    - 用於處理日誌記錄、錯誤監控、效能追蹤等橫切關注點 (Cross-Cutting Concerns)。
+
+# --- 5. 錯誤處理 (Error Handling) ---
+- **防禦性程式設計**:
+    - 在函式開頭就處理錯誤和邊界情況 (Guard Clauses)。
+    - 使用「提前返回」(Early Return) 來避免深度巢狀的 `if` 語句。
+    - 將「快樂路徑」(Happy Path) 的程式碼放在函式的最後，以提高可讀性。
+    - 避免不必要的 `else` 語句，優先使用 `if-return` 模式。
+- **錯誤類型**:
+    - 對於可預期的客戶端錯誤 (如找不到資源)，使用 `HTTPException`。
+    - 對於未預期的伺服器錯誤，透過中間件進行捕捉、記錄，並回傳通用的 500 錯誤訊息。
+
+# --- 6. 安全性 (Security) ---
+- **金鑰管理**: 絕對不可以在程式碼中寫死 API Key 或 Secret Key。
+- **讀取方式**: 所有機敏金鑰都必須使用 `os.getenv("VARIABLE_NAME")` 從環境變數讀取。
+- **來源**: 本機開發時，金鑰從根目錄的 `.env` 檔案載入；生產環境時，金鑰由部署平台 (Render) 直接提供。
+
+# --- 7. 性能優化 (Performance Optimization) ---
+- **非同步 I/O**: 最小化任何阻塞性的 I/O 操作。
+- **快取策略**: 對於不常變動或頻繁存取的資料，應實施快取策略 (例如使用 Redis 或記憶體快取)。
+- **延遲載入**: 對於大型數據集，考慮使用分頁或延遲載訂 (Lazy Loading) 技術。
+
+# --- 8. 本專案特定指南 (Project-Specific Guides) ---
+## 8.1 Shioaji SDK 使用須知
+- **官方文件**: `https://sinotrade.github.io/Shioaji-python-docs/`
+- **初始化與登入**: 應用程式啟動時 (在 `lifespan` 事件中)，需要實例化並登入 Shioaji API。登入憑證來自環境變數。
+- **核心查詢函式**:
+    - 即時報價快照使用 `api.snapshots()`。
+    - 歷史 K 線資料使用 `api.kbars()`。
+- **資料轉換**: 從 SDK 取得的資料結構，必須轉換成我們為 API 定義的 Pydantic 回應模型後才能返回給客戶端。
+
+## 8.2 權威參考文件
+# @docs 指令會讓 AI 優先參考這些文件
+@docs
+- https://fastapi.tiangolo.com/
+- https://docs.pydantic.dev/latest/
+- https://sinotrade.github.io/Shioaji-python-docs/
