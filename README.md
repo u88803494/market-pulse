@@ -35,7 +35,7 @@
 
 1.  **Clone 儲存庫**
     ```bash
-    git clone https://github.com/[您的GitHub使用者名稱]/market-pulse.git
+    git clone git@github.com:u88803494/market-pulse.git
     cd market-pulse
     ```
 
@@ -47,7 +47,7 @@
 
 3.  **安裝依賴套件**
     ```bash
-    pip install fastapi uvicorn pydantic python-dotenv shioaji
+    pip install -r requirements.txt
     ```
 
 4.  **設定環境變數**
@@ -74,6 +74,21 @@
 - **Swagger UI (互動式文件)**: `http://127.0.0.1:8000/docs`
 - **ReDoc (替代文件)**: `http://127.0.0.1:8000/redoc`
 
+### 4. 快速測試
+
+```bash
+# 測試基本功能
+curl http://localhost:8000/health
+
+# 測試股票報價 (Mock 資料)
+curl "http://localhost:8000/api/v1/stocks/quotes?symbol=2330"
+
+# 開啟 API 文件
+open http://localhost:8000/docs
+```
+
+> **注意**: 目前使用 Mock 資料進行測試。要使用真實的 Shioaji API，請參閱 [DEPLOYMENT.md](DEPLOYMENT.md) 中的設定指南。
+
 ## ⚙️ 環境變數 (Environment Variables)
 
 本專案需要以下環境變數才能正常運作：
@@ -89,21 +104,24 @@ market-pulse/
 ├── .gitignore          # Git 忽略檔案設定
 ├── .cursorrules        # Cursor IDE 規則設定
 ├── README.md           # 專案說明文件
+├── DEPLOYMENT.md       # 部署指南
 ├── main.py             # FastAPI 應用程式入口點
+├── requirements.txt    # Python 依賴套件
+├── models/             # Pydantic 資料模型
+│   ├── __init__.py
+│   └── stock_models.py
+├── routers/            # API 路由
+│   ├── __init__.py
+│   └── stock_routes.py
+├── services/           # 業務邏輯服務
+│   ├── __init__.py
+│   ├── shioaji_service.py      # 真實 Shioaji API 服務
+│   └── mock_shioaji_service.py # Mock 測試服務
+├── utils/              # 工具函式
+│   ├── __init__.py
+│   └── auth.py         # API 認證
 ├── venv/               # Python 虛擬環境
 └── .env                # 環境變數檔案 (需自行建立)
-```
-
-## 🏗️ 預期專案結構 (Expected Project Structure)
-根據開發規範，專案將包含以下目錄結構：
-```
-market-pulse/
-├── main.py             # 主應用程式
-├── routers/            # API 路由
-├── models/             # Pydantic 資料模型
-├── services/           # 業務邏輯服務
-├── utils/              # 工具函式
-└── .env                # 環境變數
 ```
 
 
